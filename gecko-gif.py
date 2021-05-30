@@ -8,13 +8,17 @@ import os
 _win_name = 'HECKO GECKO'
 _win_wait_interval_ms = 10
 _frame_path_prefix = 'frames/HECKO-GECKO-'
+_discord_size = (120, 120)
 _resize_for_discord = False
 _write_to_file = False
 
 def imshow(window_name: str, im: np.ndarray):
-    ratio = im.shape[0]/im.shape[1]
-    width = 1000
-    sz = (width, int(width*ratio))
+    if _resize_for_discord:
+        sz = _discord_size
+    else:
+        ratio = im.shape[0]/im.shape[1]
+        width = 1000
+        sz = (width, int(width*ratio))
     cv.imshow(window_name, cv.resize(im, sz))
 
 def update_window(im: np.ndarray):
@@ -26,7 +30,7 @@ im = im/255.0
 mask = np.linalg.norm(im, axis=2) > 0.3
 if _resize_for_discord:
     mask = mask[:, :mask.shape[0]]
-    mask = cv.resize(mask*1.0, (120, 120), interpolation=cv.INTER_AREA)
+    mask = cv.resize(mask*1.0, _discord_size, interpolation=cv.INTER_AREA)
 
 if _write_to_file:
     os.system('rm frames/*')
