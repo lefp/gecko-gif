@@ -17,20 +17,6 @@ def imshow(window_name: str, im: np.ndarray):
     sz = (width, int(width*ratio))
     cv.imshow(window_name, cv.resize(im, sz))
 
-def sph2cart(sph: np.ndarray):
-    # the last dimension of `sph` is expected to be in format [r, theta, phi]
-    sph = np.array(sph)
-    r     = sph[..., 0]
-    theta = sph[..., 1]
-    phi   = sph[..., 2]
-
-    cart = np.zeros(np.shape(sph))
-    cart[..., 0] = r * np.cos(phi) * np.sin(theta)
-    cart[..., 1] = r * np.sin(phi) * np.sin(theta)
-    cart[..., 2] = r * np.cos(theta)
-
-    return cart
-
 def update_window(im: np.ndarray):
     imshow(_win_name, im)
     cv.waitKey(_win_wait_interval_ms)
@@ -45,31 +31,20 @@ if _resize_for_discord:
 
 y = np.linspace(0, pi, im.shape[1])
 
-# TODO we spend too much time near the switching points and not enough time near
-# the midpoint of each section
 if _write_to_file:
     os.system('rm frames/*')
-radius = 1
+L = 70
+radius = 80
 while True:
-    phi = 0
-    for theta in np.linspace(0, pi/2, 30, endpoint=False):
-        im = mask * np.reshape(sph2cart([radius, theta, phi]), (1, 1, 3))
+    for theta in np.linspace(0, 2*pi, 150):
+        a = radius*np.cos(theta)
+        b = radius*np.sin(theta)
+        im = mask * [L, a, b]
+        im = cv.cvtColor(im.astype('float32'), cv.COLOR_Lab2BGR)
         if _write_to_file:
-            cv.imwrite(_frame_path_prefix + 'A' + str(theta) + '.png', 255*im)
-        else: update_window(im)
-    theta = pi/2
-    for phi in np.linspace(0, pi/2, 30, endpoint=False):
-        im = mask * np.reshape(sph2cart([radius, theta, phi]), (1, 1, 3))
-        if _write_to_file:
-            cv.imwrite(_frame_path_prefix + 'B' + str(phi) + '.png', 255*im)
-        else: update_window(im)
-    phi = pi/2
-    for theta in np.linspace(pi/2, 0, 30, endpoint=False):
-        im = mask * np.reshape(sph2cart([radius, theta, phi]), (1, 1, 3))
-        if _write_to_file:
-            cv.imwrite(_frame_path_prefix + 'C' + str(pi - theta) + '.png',
-                       255*im)
-        else: update_window(im)
+            cv.imwrite(_frame_path_prefix + str(theta) + '.png', 255*im)
+        else:
+            update_window(im)
     
     if _write_to_file: break
 
