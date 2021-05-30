@@ -9,8 +9,8 @@ _win_name = 'HECKO GECKO'
 _win_wait_interval_ms = 10
 _frame_path_prefix = 'frames/HECKO-GECKO-'
 _discord_size = (120, 120)
-_resize_for_discord = False
-_write_to_file = False
+_resize_for_discord = True
+_write_to_file = True
 
 def imshow(window_name: str, im: np.ndarray):
     if _resize_for_discord:
@@ -32,12 +32,16 @@ if _resize_for_discord:
     mask = mask[:, :mask.shape[0]]
     mask = cv.resize(mask*1.0, _discord_size, interpolation=cv.INTER_AREA)
 
+
+x_phase_shift = np.linspace(0, pi, mask.shape[1])
+y_phase_shift = np.linspace(0, pi, mask.shape[0])
+pos_phase_shift = np.sum(np.meshgrid(x_phase_shift, y_phase_shift), axis=0)
+
+L = 70
+radius = 40
+
 if _write_to_file:
     os.system('rm frames/*')
-L = 70
-radius = 120
-im_width = mask.shape[1]
-pos_phase_shift = np.linspace(0, 2*pi, im_width).reshape((1, im_width))
 im = np.zeros((mask.shape[0], mask.shape[1], 3))
 while True:
     for theta in np.linspace(0, 2*pi, 100):
@@ -55,4 +59,8 @@ while True:
     if _write_to_file: break
 
 if _write_to_file:
-    os.system('convert frames/*.png -set delay 10 frames/HECKIN-GECKIN.gif')
+    gif_path = 'saved/HECKIN-GECKIN-L' + str(L) + 'r' + str(radius) + '-diag'
+    if _resize_for_discord:
+        gif_path += '-discord'
+    gif_path += '.gif'
+    os.system('convert frames/*.png -set delay 10 ' + gif_path)
