@@ -24,22 +24,24 @@ def update_window(im: np.ndarray):
 im = cv.imread('gecko-recolored.jpg')
 im = im/255.0
 mask = np.linalg.norm(im, axis=2) > 0.3
-mask = np.repeat(mask[..., np.newaxis], 3, axis=2)
 if _resize_for_discord:
-    mask = mask[:, :mask.shape[0], :]
+    mask = mask[:, :mask.shape[0]]
     mask = cv.resize(mask*1.0, (120, 120), interpolation=cv.INTER_AREA)
-
-y = np.linspace(0, pi, im.shape[1])
 
 if _write_to_file:
     os.system('rm frames/*')
 L = 70
 radius = 120
+im_width = mask.shape[1]
+pos_phase_shift = np.linspace(0, 2*pi, im_width).reshape((1, im_width))
+im = np.zeros((mask.shape[0], mask.shape[1], 3))
 while True:
-    for theta in np.linspace(0, 2*pi, 150):
-        a = radius*np.cos(theta)
-        b = radius*np.sin(theta)
-        im = mask * [L, a, b]
+    for theta in np.linspace(0, 2*pi, 100):
+        a = radius*np.cos(theta - pos_phase_shift)
+        b = radius*np.sin(theta - pos_phase_shift)
+        im[..., 0] = L * mask
+        im[..., 1] = a * mask
+        im[..., 2] = b * mask
         im = cv.cvtColor(im.astype('float32'), cv.COLOR_Lab2BGR)
         if _write_to_file:
             cv.imwrite(_frame_path_prefix + str(theta) + '.png', 255*im)
