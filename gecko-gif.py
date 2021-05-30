@@ -34,7 +34,7 @@ y = np.linspace(0, pi, im.shape[1])
 if _write_to_file:
     os.system('rm frames/*')
 L = 70
-radius = 80
+radius = 120
 while True:
     for theta in np.linspace(0, 2*pi, 150):
         a = radius*np.cos(theta)
