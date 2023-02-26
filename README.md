@@ -11,3 +11,7 @@ into this
 .
 
 Requires ImageMagick to be installed, because it calls `convert` to produce the GIF from frames.
+
+There is a switch at the top of the code to toggle writing to file (in case you just want to see it, without saving).
+
+There is another switch that produces a Discord profile-picture-sized version, because (when I wrote the code) Discord's auto-downscaling ruined the image.
